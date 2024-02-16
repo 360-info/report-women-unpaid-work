@@ -1,0 +1,149 @@
+---
+title: Time Use in India, 2019
+format:
+  360-analysis-html: default
+author: James Goldie
+date: last-modified
+code-fold: true
+---
+
+```{r}
+#| label: setup
+
+library(tidyverse)
+library(themes360info)
+library(ggtext)
+library(here)
+```
+
+# Getting the data
+
+Although the full report is available upon request, today we're just visualising some headline tables from the [Press Information Bureau's press release](https://www.pib.gov.in/PressReleasePage.aspx?PRID=1660028).
+
+```{r}
+#| label: load-data
+
+list.files(here("data"), pattern = glob2rx("timeuse-india2019*.csv"),
+  full.names = TRUE) |>
+  tibble(path = _, fname = basename(path)) |>
+  separate(fname, into = c("timeuse", "india2019", "measure", "ext")) |>
+  mutate(data = map(path, read_csv)) |>
+  select(-c(path, timeuse, india2019, ext)) |>
+  unnest(data) ->
+all_data
+```
+
+There are three tables (under the `measure` key) here:
+
+1. Percentage of persons of age 6 years and above participating in different activities in a day
+2. Average time (in minutes) spent in a day per participant of age 6 years and above in different activities
+3. Percentage share of total time in different activities in a day per person of age 6 years and above
+
+Table 2 refers to the average time spend per day for each person who participated — not for each person surveyed. I'm assuming that multiplying tables 1 and 2 together and dividing that through by the number of minutes in the day (1440) gets you table 3. Let's rehsape the data in order to verify that.
+
+```{r}
+#| label: reshape-data
+# now instead of making it wide by sex + area,
+# make it wide by table number (measure)
+all_data |>
+  pivot_longer(
+    -c(measure, activity),
+    names_to = c("sex", "area"),
+    names_sep = "_") |>
+  pivot_wider(names_from = measure, values_from = value) |>
+  select(activity, sex, area, percentage, minutes, pctshare) |>
+  mutate(across(c(percentage, pctshare), \(x) x / 100)) ->
+all_data_bymeasure
+```
+
+```{r}
+#| label: verify-tables
+
+all_data_bymeasure |>
+  mutate(
+    pctshare_manual = percentage * minutes / 1440,
+    pctshare_diff = pctshare_manual - pctshare) ->
+all_data_bymeasure_manual
+
+# let's quickly check the size of the difference
+hist(all_data_bymeasure_manual$pctshare_diff)
+```
+
+The differences are all within 0.001, which was the significance of the original figures provided after I divided the percentages by 100, so it seems like my understanding is correct here.
+
+## Gendered differences
+
+Knowing this, I'm interested in the twofold effect on unpaid domestic and care work: that (a) more women than men participate in it, and (b) that those who do  spend more time doing it.
+
+```{r}
+#| label: gender-multipliers
+all_data_bymeasure_manual |>
+  select(activity, sex, area, percentage, minutes, share = pctshare_manual) |>
+  filter(
+    area != "all",
+    sex != "person",
+    activity %in% c(
+      "Unpaid domestic services for household members",
+      "Unpaid caregiving services for household members")) |>
+  arrange(sex) |>
+  group_by(activity, area) |>
+  summarise(across(where(is.numeric), \(x) x[1] / x[2])) |>
+  mutate(
+    activity_short = case_match(activity,
+      "Unpaid domestic services for household members"   ~ "Domestic work",
+      "Unpaid caregiving services for household members" ~ "Care work"),
+    facet_label = paste0(activity_short, " in ", area, " areas"),
+    facet_ann = paste0(
+      "Share of time<br>",
+      '<span style="font-size: 18pt; font-face: bold;">',
+        round(share, 1), "x</span>")) ->
+gender_ratios
+```
+
+:::{.callout}
+Although the differences found from manually calculating table 3 are within the significant figures provided for table 3, they do start to multiply out when you start calculating ratios. For example, for Unpaid caregiving across all areas, the ratio of women's percentage share is 3.48x when using the manually calculated percentage share figures but 
+:::
+
+```{r}
+#| label: vis-ratios
+ggplot(gender_ratios) +
+  geom_rect(
+    aes(xmin = 0, ymin = 0, xmax = percentage, ymax = minutes),
+    fill = "orange", alpha = 0.75) +
+  geom_rect(
+    aes(xmin = 0, ymin = 0, xmax = 1, ymax = 1),
+    fill = "black", alpha = 0.75) +
+  geom_richtext(
+    aes(x = percentage, y = minutes, label = facet_ann),
+    hjust = 1, nudge_x = -0.05, vjust = 1, nudge_y = -0.05,
+    label.colour = NA, fill = NA, family = "Body 360info") +
+  facet_wrap(vars(facet_label)) +
+  coord_fixed() +
+  scale_x_continuous(
+    labels = scales::label_number(suffix = "x")) +
+  scale_y_continuous(
+    labels = scales::label_number(suffix = "x")) +
+  theme_360(base_size = 18) +
+  theme(
+    strip.text = element_text(face = "bold", hjust = 0),
+    panel.grid.minor = element_blank(),
+    axis.title = element_text(face = "plain")) +
+  labs(
+    x = "Girls and women were more likely to do...",
+    y = "Girls and women spent more time doing...",
+    title = "Unpaid work in the home across India",
+    caption = paste(
+      "**CHART:** James Goldie, 360info",
+      "**DATA:** Time Use Survey 2019",
+      "Ministry of Statistics and Programme Implementation, Indian Government",
+      sep = "<br>"),
+    subtitle = paste(
+      "Girls and women aged 6+ surveyed in India (n = 447,250) reported being **more likely**",
+      "than body and men to report doing unpaid domestic or care work in the house.",
+      " Those who did also reported **spending more time** doing it.",
+      sep = "<br>")) ->
+ratio_plot
+
+save_360plot(ratio_plot, here("out", "gender-ratios.png"))
+
+```
