@@ -1,0 +1,140 @@
+---
+# omit title and subtitle if you're doing a custom title block
+title: Untitled
+subtitle: A thing here
+# for social previews
+pagetitle: Untitled
+description: A descrption for social previews
+twitter-card:
+  site: "@360info_global"
+  image: "/folder/example.png"
+open-graph:
+  image: "/folder/example.png"
+format:
+  360-embed-html: default
+# metadata for modals and embed sharing functionality
+360embed:
+  byline: James Goldie, 360info
+  data-source: XXX
+  type: map
+  aspect-ratio: 20 / 19
+  min-height: 500px
+  max-height: 893px
+  bg-colour: white
+  title: "Interactive: title"
+  repo: report-example
+  domain: https://example.360visuals.org
+  path: /map/  
+  fragments: state, month
+  about: |
+    Here's a place to **tell people** and [link to things](https://example.com)!
+---
+
+```{ojs}
+//| label: load-data
+allData = FileAttachment("/data/geah2021-hrs-domestic-care.csv")
+  .csv({ typed: true });
+allCountries = Array.from(new Set(allData.map(d => d.geography)));
+
+// fix up 0 values not getting stringified, and
+// assign facets for manual wrapping
+timeUse = allData
+  .filter(d => d.gender != "Combined")
+  .map(d => ({ ...d,
+    response_category: d.response_category.toString(),
+    fx: allCountries.indexOf(d.geography) % 2,
+    fy: Math.floor(allCountries.indexOf(d.geography) / 2)
+  }));
+
+// need country names and facet indices de-duplicated too for labels
+// (pinched from https://stackoverflow.com/a/36744732/3246758 to avoid using aq)
+countryLabels =
+  timeUse.filter((value, index, self) =>
+    index === self.findIndex(t => (t.geography === value.geography)));
+
+```
+
+```{ojs}
+//| label: sorting-fn
+sortOn = function(z, levels) {
+  return (a, b) =>
+    levels.indexOf(a[z]) - levels.indexOf(b[z])
+}
+
+timeUseLevels =
+  ["0", "<1", "1-2", "2-3", "3-4", "4-5", "5-7", "7-9", "9-11", ">11"];
+```
+
+```{ojs}
+//| label: inputs
+viewof facetChoice = Inputs.radio(
+  ["On gender", "On country"], {
+    value: "On gender"
+  });
+
+// channels used in plot depend on selection
+channels = ({
+  "On gender":  { y: "geography", fx: "gender", fy: null },   
+  "On country": { y: "gender",    fx: "fx",     fy: "fy" }
+})
+```
+
+
+```{ojs}
+//| label: plot-data
+Plot.plot({
+  marks: [
+    Plot.barX(timeUse, {
+      y: channels[facetChoice].y,
+      x: "value",
+      fx: channels[facetChoice].fx,
+      fy: channels[facetChoice].fy,
+      fill: "response_category",
+      order: sortOn("response_category", timeUseLevels),
+      tip: true
+    }),
+    facetChoice == "On country" ?
+      Plot.text(countryLabels, {
+        fx: "fx",
+        fy: "fy",
+        text: "geography",
+        frameAnchor: "top-left", dy: -6
+      }) : null,
+    // add facet axis marks for country comparison to remove default facet label
+    facetChoice == "On country" ? Plot.axisFx({
+      color: "transparent"
+    }) : null,
+    facetChoice == "On country" ? Plot.axisFy({
+      marginBottom: 150,
+      color: "transparent"
+    }) : null
+  ],
+  color: {
+    legend: true,
+    type: "ordinal",
+    domain: timeUseLevels
+  },
+  x: {
+    label: null
+  },
+  y: {
+    label: null
+  },
+  fx: {
+    label: null
+  },
+  fy: {
+    label: null
+  },
+  style: {
+    fontSize: 14,
+    fontFamily: "Roboto Condensed"
+  },
+  marginLeft: 80,
+  height: 600
+});
+```
+
+{{< include _popups/_buttons.qmd >}}
+
+{{< include _popups/_dialogs.qmd >}}
