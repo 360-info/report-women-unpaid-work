@@ -68,7 +68,7 @@ ggplot(q_b24) +
     subtitle = str_wrap(q_b24$question_text[1], 120)) ->
 plot_b24_bycountry
 
-ggsave(here("out", "geah-bycountry.png"), plot_b24_bycountry, bg = "white")
+ggsave(here("out", "assets", "geah-bycountry.png"), plot_b24_bycountry, bg = "white")
 
 # then keep gender comparisons together
 
@@ -92,5 +92,5 @@ ggplot(q_b24) +
     subtitle = str_wrap(q_b24$question_text[1], 120)) ->
 plot_b24_bygender
 
-ggsave(here("out", "geah-bygender.png"), plot_b24_bygender, bg = "white")
+ggsave(here("out", "assets", "geah-bygender.png"), plot_b24_bygender, bg = "white")
 ```

@@ -152,6 +152,6 @@ ggplot(gender_ratios) +
       sep = "<br>")) ->
 ratio_plot
 
-save_360plot(ratio_plot, here("out", "gender-ratios.png"))
+save_360plot(ratio_plot, here("out", "assets", "gender-ratios.png"))
 
 ```
