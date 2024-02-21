@@ -1,0 +1,96 @@
+---
+title: Survey on Gender Equality at Home
+format:
+  360-analysis-html: default
+author: James Goldie
+date: last-modified
+code-fold: true
+---
+
+```{r}
+#| label: setup
+library(tidyverse)
+library(here)
+```
+
+```{r}
+#| label: load-data
+here("data", "geah2020-2021-asiapacific.csv") |>
+  read_csv() |>
+  janitor::clean_names() ->
+all_data
+```
+
+```{r}
+#| label: q-b24
+all_data |>
+  filter(question_code == "B.24") |>
+  # code hours as an ordered factor
+  mutate(
+    response_category = factor(response_category,
+      levels = c(
+        "No time spent on these activities",
+        "Less than 1 hour",
+        "Between 1 and 2 hours", "Between 2 and 3 hours",
+        "Between 3 and 4 hours", "Between 4 and 5 hours",
+        "Between 5 and 7 hours", "Between 7 and 9 hours",
+        "Between 9 and 11 hours", 
+        "More than 11hrs"),
+      labels = c(
+        "0", "<1", "1-2", "2-3", "3-4", "4-5", "5-7", "7-9", "9-11", ">11")),
+    gender = str_to_sentence(gender)) |>
+  filter(gender != "combined") |>
+  write_csv(here("data", "geah2021-hrs-domestic-care.csv")) ->
+q_b24
+```
+
+```{r}
+#| label: vis-q-b24
+
+# first kee pcountries together
+ggplot(q_b24) +
+  aes(x = geography, y = value, fill = response_category) +
+  geom_col() +
+  facet_wrap(vars(gender)) +
+  scale_fill_brewer(palette = "RdBu", direction = -1) +
+  scale_y_continuous(
+    breaks = seq(0, 100, by = 20),
+    labels = scales::label_number(suffix = "%")) +
+  coord_flip() +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(face = "bold", hjust = 0)
+  ) +
+  labs(
+    x = NULL, y = "% of respondents",
+    fill = "Hours/day",
+    title = "Domestic and care work (2021)",
+    subtitle = str_wrap(q_b24$question_text[1], 120)) ->
+plot_b24_bycountry
+
+ggsave(here("out", "geah-bycountry.png"), plot_b24_bycountry, bg = "white")
+
+# then keep gender comparisons together
+
+ggplot(q_b24) +
+  aes(x = gender, y = value, fill = response_category) +
+  geom_col() +
+  facet_wrap(vars(geography)) +
+  scale_fill_brewer(palette = "RdBu", direction = -1) +
+  scale_y_continuous(
+    breaks = seq(0, 100, by = 20),
+    labels = scales::label_number(suffix = "%")) +
+  coord_flip() +
+  theme_minimal() +
+  theme(
+    strip.text = element_text(face = "bold", hjust = 0)
+  ) +
+  labs(
+    x = NULL, y = "% of respondents",
+    fill = "Hours/day",
+    title = "Domestic and care work (2021)",
+    subtitle = str_wrap(q_b24$question_text[1], 120)) ->
+plot_b24_bygender
+
+ggsave(here("out", "geah-bygender.png"), plot_b24_bygender, bg = "white")
+```
