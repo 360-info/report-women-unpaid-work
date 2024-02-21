@@ -1,0 +1,133 @@
+---
+title: Untitled
+subtitle: A slightly longer title
+format:
+  360-analysis-html: default
+author: James Goldie
+date: last-modified
+code-fold: true
+---
+
+```{r}
+#| label: setup
+library(tidyverse)
+library(readxl)
+library(here)
+```
+
+# SDG Indicator 5.4.1
+
+Proportion of time spent on unpaid domestic chores and care work, by sex, age and location (percent)
+
+We'll get the data from the [SDG Global Database](https://unstats.un.org/sdgs/dataportal). They do have a [SDG API](https://unstats.un.org/sdgs/UNSDGAPIV5/swagger/index.html), but I couldn't get the data endpoint to work, so let's work with a manual download instead:
+
+```{r}
+#| label: load-data
+
+here("data", "sdg-indicator-5-4-1.xlsx") |>
+  read_excel(sheet = "Goal5") |>
+  janitor::clean_names() ->
+all_data
+```
+
+```{r}
+#| label: tidy-data
+all_data |>
+  select(starts_with("series"), geo_area_name, time_period, time_detail, sex, age, location,
+    value) |>
+  mutate(
+    age = fct(age, levels = c(
+      "ALLAGE", "3+", "5+", "6+", "6-65",
+      "10+", "10-14", "12+", "12-14", "12-24", "14+", "15+", "15-24", "15-49",
+      "15-64",  "16+", "18+", "20+", "20-24", "20-64", "20-74", "25-34",
+      "25-44", "35-44", "45-54", "45-64", "55-64", "65+", "65-74", "75-84",
+      "85+"
+    )),
+    location = fct(location),
+    sex = fct(sex),
+    value = as.numeric(value)) ->
+all_data_tidy
+```
+
+Okay, we have a bit of a mess of age groups. Let's try to see which countries use which age groups:
+
+```{r}
+#| label: age-groups
+
+all_data_tidy |>
+  select(geo_area_name, age) |>
+  group_by(geo_area_name, age) |>
+  count() |>
+  ungroup() |>
+  pivot_wider(names_from = c(age), values_from = c(n), values_fill = 0) |>
+  write_csv(here("data", "sdg-age-groups.csv"))
+```
+
+Okay, nobody's reporting `ALLAGE`. It looks like most do: 10+, 15+, 15-24, 25-44, 45-54, 55-64, 65+ (there are a few exceptions though). Thankfully, it doesn't appear as if many countries switch age groups based on whether they're breaking down further.
+
+```{r}
+#| label: explore
+all_data_tidy |>
+  filter(age %in% c("10+", "15+", "15-24", "25-44", "45-54", "55-64", "65+")) |>
+  filter(geo_area_name == "Australia") |>
+  pull(time_detail) |>
+  unique()
+
+all_data_tidy |>
+  select(geo_area_name, time_detail) |>
+  group_by(geo_area_name, time_detail) |>
+  count() |>
+  ungroup() |>
+  pivot_wider(names_from = c(time_detail), values_from = c(n), values_fill = 0) |>
+  write_csv(here("data", "sdg-time-groups.csv"))
+```
+
+It looks like frequency is all over the place for this data. Let's visualise it more clearly:
+
+```{r}
+#| label: calc-frequency
+all_data_tidy |>
+  select(geo_area_name, time_detail) |>
+  group_by(geo_area_name, time_detail) |>
+  count() |>
+  ungroup() |>
+  # average out year ranges
+  separate(time_detail, c("start", "end"), sep = "-", fill = "right") |>
+  mutate(
+    start = as.numeric(start),
+    end = as.numeric(end),
+    year = if_else(
+      is.na(end),
+      start,
+      start + (end - start) / 2),
+    date = date_decimal(year)) |>
+  select(-c(start, end, year)) |>
+  # sort countries by total number of reports
+  group_by(geo_area_name) |>
+  add_tally(name = "n_obs") |>
+  mutate(country = paste0(geo_area_name, ": ", n_obs)) ->
+reporting_frequencies
+```
+
+```{r}
+#| label: vis-frequencies
+ggplot(reporting_frequencies) +
+  aes(
+    x = fct_reorder(.f = country, .x = n_obs),
+    y = date,
+    group = geo_area_name) +
+  geom_line(colour = "grey") +
+  geom_point(fill = "#333333", colour = "white", size = 2, shape = 21) +
+  coord_flip() +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold"),
+    panel.grid.major.y = element_blank()) +
+  labs(
+    x = NULL, y = NULL,
+    title = "How often do countries report on unpaid chores and work?") ->
+freq_plot
+
+ggsave(here("out", "assets", "freq-plot.png"), height = 16, width = 9,
+  units = "in", bg = "white")
+```
