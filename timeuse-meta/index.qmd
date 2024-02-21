@@ -41,7 +41,7 @@ allCountries = Array.from(new Set(allData.map(d => d.geography)));
 timeUse = allData
   .filter(d => d.gender != "Combined")
   .map(d => ({ ...d,
-    response_category: d.response_category.toString(),
+    response_category: d.response_category.toString() + " hrs",
     fx: allCountries.indexOf(d.geography) % 2,
     fy: Math.floor(allCountries.indexOf(d.geography) / 2)
   }));
@@ -62,7 +62,8 @@ sortOn = function(z, levels) {
 }
 
 timeUseLevels =
-  ["0", "<1", "1-2", "2-3", "3-4", "4-5", "5-7", "7-9", "9-11", ">11"];
+  ["0 hrs", "<1 hrs", "1-2 hrs", "2-3 hrs", "3-4 hrs", "4-5 hrs", "5-7 hrs",
+   "7-9 hrs", "9-11 hrs", ">11 hrs"];
 ```
 
 ```{ojs}
@@ -90,47 +91,70 @@ Plot.plot({
       fx: channels[facetChoice].fx,
       fy: channels[facetChoice].fy,
       fill: "response_category",
+      // fillOpacity: 0.8,
       order: sortOn("response_category", timeUseLevels),
       tip: true
     }),
+    // label country facets manually
     facetChoice == "On country" ?
       Plot.text(countryLabels, {
         fx: "fx",
         fy: "fy",
+        frameAnchor: "top-left",
+        dy: -16,
         text: "geography",
-        frameAnchor: "top-left", dy: -6
+        fontWeight: "bold"
       }) : null,
     // add facet axis marks for country comparison to remove default facet label
     facetChoice == "On country" ? Plot.axisFx({
       color: "transparent"
     }) : null,
     facetChoice == "On country" ? Plot.axisFy({
-      marginBottom: 150,
       color: "transparent"
-    }) : null
+    }) : null,
+    // draw grid on top
+    Plot.gridX({
+      interval: 20,
+      stroke: "white",
+      strokeOpacity: 0.75,
+      strokeDasharray: "2"
+    })
   ],
   color: {
     legend: true,
+    swatchHeight: 25,
+    swatchWidth: 25,
+    style: {
+      fontFamily: "Roboto Condensed",
+      fontSize: "100%",
+    },
+    columns: 5,
     type: "ordinal",
+    scheme: "BuRd",
     domain: timeUseLevels
   },
   x: {
-    label: null
+    label: null,
+    ticks: 6,
+    tickFormat: d => d + "%"
   },
   y: {
     label: null
   },
   fx: {
-    label: null
+    label: null,
+    padding: 0.2
   },
   fy: {
-    label: null
+    label: null,
+    padding: 0.3
   },
   style: {
-    fontSize: 14,
-    fontFamily: "Roboto Condensed"
+    fontSize: 16,
+    fontFamily: "Roboto Condensed",
+    // fontWeight: "bold"
   },
-  marginLeft: 80,
+  marginLeft: 110,
   height: 600
 });
 ```
