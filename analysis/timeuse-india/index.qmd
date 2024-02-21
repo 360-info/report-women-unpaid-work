@@ -100,6 +100,14 @@ all_data_bymeasure_manual |>
 gender_ratios
 ```
 
+```{r}
+#| label: write-ratios
+
+gender_ratios |>
+  select(activity_short, activity, area, percentage, minutes, share) |>
+  write_csv(here("data", "ratios-india2019.csv"))
+```
+
 :::{.callout}
 Although the differences found from manually calculating table 3 are within the significant figures provided for table 3, they do start to multiply out when you start calculating ratios. For example, for Unpaid caregiving across all areas, the ratio of women's percentage share is 3.48x when using the manually calculated percentage share figures but 
 :::
