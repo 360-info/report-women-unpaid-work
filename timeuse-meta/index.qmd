@@ -1,10 +1,10 @@
 ---
 # omit title and subtitle if you're doing a custom title block
 title: Untitled
-subtitle: A thing here
+subtitle: Surveys by Facebook owner Meta reveal differences between men and women across Asia-Pacific in the **number of hours spent each day on unpaid domestic and care work**.
 # for social previews
 pagetitle: Untitled
-description: A descrption for social previews
+description: A description for social previews
 twitter-card:
   site: "@360info_global"
   image: "/folder/example.png"
