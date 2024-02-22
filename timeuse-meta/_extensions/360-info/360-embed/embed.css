@@ -49,9 +49,6 @@ header#title-block-header p {
 /* shrink header elements at lower widths */
 @media (max-width: 45em) {
   
-  header#title-block-header {
-    margin-right: 140px;
-  }
   
   header#title-block-header h1 
   {
@@ -61,7 +58,6 @@ header#title-block-header p {
   header#title-block-header p 
   {
     font-size: 100%;
-    font-weight: bold;
   }
 
   .inputForm {
@@ -72,10 +68,6 @@ header#title-block-header p {
 
 @media (max-width: 34em) {
   
-  header#title-block-header {
-    margin-right: 120px;
-  }
-  
   header#title-block-header h1 
   {
     font-size: 120%;
@@ -84,7 +76,6 @@ header#title-block-header p {
   header#title-block-header p 
   {
     font-size: 80%;
-    font-weight: bold;
   }
 }
 
