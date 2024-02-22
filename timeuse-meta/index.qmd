@@ -46,24 +46,17 @@ timeUse = allData
     fy: Math.floor(allCountries.indexOf(d.geography) / 2)
   }));
 
+// define for stacking order
+timeUseLevels =
+  ["0 hrs", "<1 hrs", "1-2 hrs", "2-3 hrs", "3-4 hrs", "4-5 hrs", "5-7 hrs",
+   "7-9 hrs", "9-11 hrs", ">11 hrs"];
+
 // need country names and facet indices de-duplicated too for labels
 // (pinched from https://stackoverflow.com/a/36744732/3246758 to avoid using aq)
 countryLabels =
   timeUse.filter((value, index, self) =>
     index === self.findIndex(t => (t.geography === value.geography)));
 
-```
-
-```{ojs}
-//| label: sorting-fn
-sortOn = function(z, levels) {
-  return (a, b) =>
-    levels.indexOf(a[z]) - levels.indexOf(b[z])
-}
-
-timeUseLevels =
-  ["0 hrs", "<1 hrs", "1-2 hrs", "2-3 hrs", "3-4 hrs", "4-5 hrs", "5-7 hrs",
-   "7-9 hrs", "9-11 hrs", ">11 hrs"];
 ```
 
 ```{ojs}
@@ -91,8 +84,7 @@ Plot.plot({
       fx: channels[facetChoice].fx,
       fy: channels[facetChoice].fy,
       fill: "response_category",
-      // fillOpacity: 0.8,
-      order: sortOn("response_category", timeUseLevels),
+      order: timeUseLevels,
       tip: true
     }),
     // label country facets manually
