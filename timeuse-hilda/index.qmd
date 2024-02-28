@@ -1,0 +1,182 @@
+---
+# omit title and subtitle if you're doing a custom title block
+title: Unpaid domestic and care time
+subtitle: Test test test
+# for social previews
+pagetitle: Unpaid domestic and care time
+# description: A description for social previews
+twitter-card:
+  site: "@360info_global"
+  # image: "/folder/example.png"
+open-graph:
+  # image: "/folder/example.png"
+# resources:
+#   - example.png
+format:
+  360-embed-html: default
+# metadata for modals and embed sharing functionality
+360embed:
+  byline: James Goldie, 360info
+  data-source: HILDA, UMelb/DSS
+  type: map
+  aspect-ratio: 20 / 19
+  min-height: 500px
+  max-height: 893px
+  bg-colour: white
+  title: "Unpaid domestic and care time"
+  repo: report-example
+  domain: https://unpaidtime-hilda.360visuals.org
+  path: /timeuse-hilda/  
+  fragments: ""
+  about: |
+    Here's a place to **tell people** and [link to things](https://example.com)!
+---
+
+```{ojs}
+//| label: load-data
+allData = FileAttachment("/data/hilda-unpaid-time-stats.csv").csv({ typed: true})
+```
+
+```{ojs}
+//| label: controls
+
+viewof selectedStat = Inputs.radio(
+  new Map([
+    [ "Bottom 10%", "10th percentile" ],
+    [ "Bottom 25%", "25th percentile" ],
+    [ "Average", "Average" ],
+    [ "Median", "Median" ],
+    [ "Top 25%", "75th percentile" ],
+    [ "Top 10%", "90th percentile" ]
+  ]), {
+    value: "Average"
+  })
+
+// color domain and range (merge for checkbox styling)
+allActivities = Array.from(new Set(allData.map(d => d.activity_long)))
+allColors = d3.schemePaired.slice(0, allActivities.length)
+allScale = allActivities.map((d, i) => ({
+  activity: d,
+  color: allColors[i]
+}))
+
+viewof selectedActivities = Inputs.checkbox(allScale, {
+  value: allScale,
+  format: x => html`<span style="display: inline-block; width: 0.8em; height: 0.8em; border-radius: 0.4em; background-color: ${x.color}; margin-inline-end: 0.3em;"></span><span>${x.activity}</span>`
+})
+
+
+import { Scrubber } from "@mbostock/scrubber"
+
+// get the years possible for the Scrubber
+allYears = Array.from(new Set(allData.map(d => d.year)))
+viewof selectedYear = Scrubber(allYears, {
+  initial: allYears[0],
+  autoplay: true,
+  loop: true,
+  delay: 300,
+  loopDelay: 3000
+})
+```
+
+```{ojs}
+//| label: filter-data
+
+filteredData = allData
+  .filter(
+    d => d.statistic == selectedStat &&
+      selectedActivities.map(d => d.activity).includes(d.activity_long) &&
+      d.year == selectedYear &&
+      d.units == "Combined")
+  .map(d => ({
+    ...d,
+    age_new: d.age_group
+      .replace(",", "-")
+      .replace("(", "")
+      .replace("]", "")
+      .replace("-Inf", "+")
+  }))
+```
+
+```{ojs}
+//| label: stack-plot
+selectedStat == "Average" ?
+  // stacked bar chart if displaying average
+  Plot.plot({
+    marks: [
+      Plot.barY(filteredData, {
+        x: "age_new",
+        y: "value",
+        fx: "sex",
+        fill: "activity_long"
+      })
+    ],
+    x: {
+      label: null,
+    },
+    y: {
+      label: "↑ Hours per week",
+      grid: true
+    },
+    fx: {
+      label: null
+    },
+    color: {
+      domain: allActivities,
+      range: allColors
+    },
+    style: {
+      fontSize: 16,
+      fontFamily: "Roboto Condensed"
+    },
+    marginTop: 50,
+    insetTop: 20,
+    width: 800
+  }) :
+  // line chart if not displaying average
+  Plot.plot({
+    marks: [
+      Plot.line(filteredData, {
+        x: "age_new",
+        y: "value",
+        fx: "sex",
+        stroke: "activity_long",
+        curve: "monotone-x"
+      }),
+      Plot.dot(filteredData, {
+        x: "age_new",
+        y: "value",
+        fx: "sex",
+        fill: "activity_long",
+        symbol: "circle",
+        size: 2
+      }),
+    ],
+    x: {
+      label: null
+    },
+    y: {
+      label: "↑ Hours per week",
+      grid: true
+    },
+    fx: {
+      label: null,
+      fontWeight: "bold"
+    },
+    color: {
+      domain: allActivities,
+      range: allColors
+    },
+    style: {
+      fontSize: 16,
+      fontFamily: "Roboto Condensed"
+    },
+    marginTop: 50,
+    insetTop: 20,
+    width: 800
+  })
+```
+
+{{< include _popups/_buttons.qmd >}}
+
+{{< include _popups/_dialogs.qmd >}}

@@ -1,5 +1,6 @@
 ---
 title: HILDA survey
+subtitle: Time spent on unpaid domestic or care work
 format:
   360-analysis-html:
     # hide code chunk output unless otherwise specified to prevent privacy
@@ -23,15 +24,27 @@ library(here)
 hilda_dir <- here("data", "raw-hilda")
 ```
 
+:::{.callout-note}
+
+The raw data underpinning this analysis is not version controlled. To reproduce the analysis, you must request permission from DSS and download it via the [Australian Data Archive](https://dataverse.ada.edu.au/dataset.xhtml?persistentId=doi:10.26193/R4IN30).
+
+Raw data should be downloaded as `.dta` files put directly into `/data/raw-hilda` (not in subfolders), keeping the names provided by ADA.
+
+In order to ensure that respondent data is not accidentally leaked during the render process, chunk output is turned off for most chunks until the end; I recommend you run this analysis interactively.
+
+The render process also checks to ensure all groups are of sufficient size before rendering outputs.
+
+:::
+
 # Explore the data
 
-Although we'll use the `{hildareadR}` package to combine wave data and extract variables, it's still instructive to open the files using `{haven}` ourselves so that we can look at the column labels and particularly to understand the types of answers available.
+Although we'll use the [`{hildareadR}` package](https://cran.r-project.org/web/packages/hildareadR/) (by Sara and Sebastian Kalucza) to combine wave data and extract variables, it's still instructive to open the files using `{haven}` ourselves so that we can look at the column labels and particularly to understand the types of answers available.
 
 This code assumes that all of the files have been unzipped directly into `here("data", "raw-hilda")`. If you've downloaded them from Dataverse and they've unzipped into separate folders by zip file, pull them back up to the parent folder.
 
 ```{r}
 #| label: load-lastwave
-here(hilda_dir, "Combined_v220c.dta") |>
+here(hilda_dir, "Rperson_v220c.dta") |>
   haven::read_dta() ->
 all_lastwave
 
@@ -40,8 +53,7 @@ tibble(
   name = names(all_lastwave),
   question = map_chr(all_lastwave, ~ attr(.x, "label")),
   answers = map(all_lastwave, ~ attr(.x, "labels"))) |>
-  unnest_longer(answers) |>
-  View("Last wave column labels")
+  unnest_longer(answers)
 ```
 
 # Load the data
@@ -94,7 +106,7 @@ The variables of interest around hours/minutes per week spent on various activit
 ```{r}
 #| label: load-all
 read_hilda(
-  c("hgsex", "hgage", variable_suffixes),
+  c("hgsex", "hgage", survey_vars$short),
   waves = 1:22, dir = hilda_dir, release = 22) |>
   select(
     -contains(paste0("hgage", 1:20)),
@@ -135,7 +147,7 @@ all_data |>
   select(xwaveid, wave, hgsex, age_group, hgage, everything()) |>
   group_by(wave, hgsex, age_group) |>
   summarise(across(starts_with("ls"), list(
-    n_obs = ~ length(.x),
+    nobs = ~ length(.x),
     pct_miss = ~ length(which(is.na(.x))) / length(.x)))) |>
   ungroup() ->
 grouped_missing_stats
@@ -191,47 +203,68 @@ refined_groups
 refined_groups |>
   group_by(wave, hgsex, age_group) |>
   summarise(across(starts_with("ls"), list(
-    n_obs = ~ length(.x),
+    nobs = ~ length(.x),
     p10 = ~ quantile(.x, 0.1, na.rm = TRUE),
     q1 = ~ quantile(.x, 0.25, na.rm = TRUE),
     mean = ~ mean(.x, na.rm = TRUE),
-    q3 = ~ quantile(.x, 0.25, na.rm = TRUE),
+    median = ~ median(.x, na.rm = TRUE),
+    q3 = ~ quantile(.x, 0.75, na.rm = TRUE),
     p90 = ~ quantile(.x, 0.9, na.rm = TRUE)
     ))) ->
 grouped_stats
 ```
 
-Now let's visualise the means:
-
-```{r}
-#| label: activity-mappings
-
-
-```
+Now let's visualise the stats. Along the way, we'll confirm there none of the groups have gotten too small:
 
 ```{r}
 #| label: vis-means
 #| output: true
 survey_vars |>
   pull(long) |>
-  set_names(paste0(survey_vars$short, "_mean")) ->
+  set_names(survey_vars$short) ->
 survey_mappings
 
 grouped_stats |>
-  select(wave, hgsex, age_group, ends_with("mean")) |>
-  pivot_longer(ends_with("mean"), names_to = "activity", values_to = "mean") |>
+  ungroup() |>
+  pivot_longer(
+    -c(wave, hgsex, age_group),
+    names_to = c("activity", "statistic"),
+    names_sep = "_",
+    values_to = "value") |>
+  # recode the values
   mutate(
     sex = case_match(hgsex, 1 ~ "Male", 2 ~ "Female"),
     wave_num = match(wave, letters),
     year = wave_num + 2000,
-    activity_long = str_replace_all(activity, survey_mappings)) ->
+    activity_long = str_replace_all(activity, survey_mappings),
+    statistic = case_match(statistic,
+      "nobs" ~ "Number of people",
+      "p10" ~ "10th percentile",
+      "q1" ~ "25th percentile",
+      "mean" ~ "Average",
+      "median" ~ "Median",
+      "q3" ~ "75th percentile",
+      "p90" ~ "90th percentile")) |>
+    separate(activity_long, into = c("units", "activity_long"), sep = " - ") |>
+  select(year, sex, age_group, activity, units, activity_long, statistic, value) ->
 grouped_stats_recoded
 
+grouped_stats_recoded |>
+  filter(statistic == "Number of people") |>
+  pull(value) |>
+  min() ->
+min_group_size
+
+if (min_group_size < 30) {
+  stop(paste(
+    "Error: minimum group size too small to produce outputs while preserving",
+    "privacy of respondants. Checking groupings in analysis code."))
+}
 # start with hrs vars
 grouped_stats_recoded |>
-  filter(str_starts(activity, "lshr")) |>
+  filter(units == "Hours per week", statistic == "Average") |>
   ggplot() +
-    aes(x = age_group, y = mean, fill = activity_long) +
+    aes(x = age_group, y = value, fill = activity_long) +
     geom_col() +
     facet_grid(vars(year), vars(sex)) +
     scale_fill_brewer(type = "qual") +
@@ -246,10 +279,9 @@ This is a good start, and it's already clear that there are big gender discrepan
 #| label: vis-means-animated
 #| output: true
 grouped_stats_recoded |>
-  filter(str_starts(activity, "lshr")) |>
-  mutate(activity_long = str_remove(activity_long, "Hours per week - ")) |>
+  filter(units == "Hours per week", statistic == "Average") |>
   ggplot() +
-    aes(x = age_group, y = mean, fill = activity_long) +
+    aes(x = age_group, y = value, fill = activity_long) +
     geom_col() +
     facet_wrap(vars(sex), ncol = 2) +
     transition_time(year) +
@@ -265,8 +297,27 @@ grouped_stats_recoded |>
     ) ->
 ani_hrsweek_mean
 
-anim_save("ani_hrsweek_mean.mp4", ani_hrsweek_mean, path = here("out"),
+anim_save("ani_hrsweek_mean.mp4",
+  ani_hrsweek_mean,
+  path = here("out", "assets"),
   renderer = ffmpeg_renderer())
 ```
 
-![Animation: average hours per week spent on unpaid domestic and care work, broken down by activity, age group, sex and year](ani_hrsweek_mean.mp4)
+::: {#fig-ani-hrsweek-mean}
+
+{{ video /assets/ani_hrsweek_mean.mp4 }}
+
+Animation: hours spent per week on unpaid domestic and care work, broken down by activity, age group, sex and year
+
+:::
+
+We could also look at this using the various quantiles we have computed, but that might be easier to do interactively. Let's write the data out and do the chart in a separate doc.
+
+```{r}
+#| label: write-stats
+grouped_stats_recoded |>
+  filter(
+    units == "Combined",
+    statistic %in% c("Number of people", "Average")) |>
+  write_csv(here("data", "hilda-unpaid-time-stats.csv"))
+```
