@@ -20,8 +20,8 @@ format:
   data-source: HILDA, UMelb/DSS
   type: chart
   aspect-ratio: 20 / 19
-  min-height: 490px
-  max-height: 760px
+  min-height: 445px
+  max-height: 637px
   bg-colour: white
   title: "Australian women working without pay"
   repo: report-women-unpaid-work
@@ -43,13 +43,28 @@ format:
 allData = FileAttachment("/data/hilda-unpaid-time-stats.csv").csv({ typed: true})
 ```
 
+```{ojs}
+//| label: year-scrubber
+import { Scrubber } from "@mbostock/scrubber"
+
+// get the years possible for the Scrubber
+allYears = Array.from(new Set(allData.map(d => d.year)))
+viewof selectedYear = Scrubber(allYears, {
+  initial: allYears[0],
+  autoplay: false,
+  loop: true,
+  delay: 300,
+  loopDelay: 3000
+})
+```
+
 ```{=html}
 <details>
-  <summary>Controls</summary>
+  <summary>Show/hide activities</summary>
 ```
 
 ```{ojs}
-//| label: controls
+//| label: legend
 
 // color domain and range (merge for checkbox styling)
 allActivities = Array.from(new Set(allData.map(d => d.activity_long)))
@@ -63,19 +78,6 @@ allScale = allActivities.map((d, i) => ({
 viewof selectedActivities = Inputs.checkbox(allScale, {
   value: allScale.filter(d => !d.activity.toLowerCase().includes("paid")),
   format: x => html`<span style="display: inline-block; width: 0.8em; height: 0.8em; border-radius: 0.4em; background-color: ${x.color}; margin-inline-end: 0.3em;"></span><span>${x.activity}</span>`
-})
-
-
-import { Scrubber } from "@mbostock/scrubber"
-
-// get the years possible for the Scrubber
-allYears = Array.from(new Set(allData.map(d => d.year)))
-viewof selectedYear = Scrubber(allYears, {
-  initial: allYears[0],
-  autoplay: true,
-  loop: true,
-  delay: 300,
-  loopDelay: 3000
 })
 ```
 

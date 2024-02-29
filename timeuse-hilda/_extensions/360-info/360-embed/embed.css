@@ -44,7 +44,7 @@ header#title-block-header p {
   margin-block-end: 0;
 }
 
-#controls {
+#legend {
   font-size: 120%;
 }
 
@@ -67,7 +67,7 @@ header#title-block-header p {
     transform-origin: bottom left;
   }
 
-  #controls {
+  #legend {
     font-size: 100%;
   }
 }
@@ -84,7 +84,7 @@ header#title-block-header p {
     font-size: 80%;
   }
 
-  #controls {
+  #legend {
     font-size: 70%;
   }
 }
@@ -117,31 +117,32 @@ details {
   background-color: #f7f7f7;
   padding: 0.5em;
   border-radius: 0.5em;
-}
-
-#controls {
-  display: flex;
-  flex-flow: column nowrap;
-  gap: 0.5em;
-
-}
-#controls button + label,
-#controls input[type="range"] {
-  width: 100% !important;
-}
-
-#controls button + label {
-  flex-flow: row-reverse;
-  gap: 0.5em;
-}
-
-#controls button,
-#controls output {
-  font-family: "Roboto Condensed";
   font-weight: bold;
 }
 
 details summary {
-  font-weight: bold;
   cursor: pointer;
+}
+
+#legend {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 0.5em;
+}
+
+
+#year-scrubber button + label,
+#year-scrubber input[type="range"] {
+  width: 100% !important;
+}
+
+#year-scrubber button + label {
+  flex-flow: row-reverse;
+  gap: 0.5em;
+}
+
+#year-scrubber button,
+#year-scrubber output {
+  font-family: "Roboto Condensed";
+  font-weight: bold;
 }

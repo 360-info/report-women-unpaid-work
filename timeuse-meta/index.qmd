@@ -1,33 +1,39 @@
 ---
 # omit title and subtitle if you're doing a custom title block
-title: Untitled
-subtitle: Surveys by Facebook owner Meta reveal differences between men and women across Asia-Pacific in the **number of hours spent each day on unpaid domestic and care work**.
+title: Unpaid work across Asia-Pacific
+subtitle: Surveys by Facebook owner Meta during the pandemic reveal differences between men and women across Asia-Pacific in the **number of hours spent each day on unpaid domestic and care work**.
 # for social previews
-pagetitle: Untitled
-description: A description for social previews
+pagetitle: Unpaid work across Asia-Pacific
+description: Surveys by Facebook owner Meta during the pandemic reveal differences between men and women across Asia-Pacific in the number of hours spent each day on unpaid domestic and care work.
 twitter-card:
   site: "@360info_global"
-  image: "/folder/example.png"
+  image: "/timeuse-meta/unpaidwork-meta-banner.png"
 open-graph:
-  image: "/folder/example.png"
+  image: "/timeuse-meta/unpaidwork-meta-banner.png"
+resources:
+  - unpaidwork-meta-banner.png
 format:
   360-embed-html: default
 # metadata for modals and embed sharing functionality
 360embed:
   byline: James Goldie, 360info
-  data-source: XXX
-  type: map
-  aspect-ratio: 20 / 19
-  min-height: 500px
+  data-source: GEAH, Meta
+  type: chart
+  aspect-ratio: 2 / 3
+  min-height: 545px
   max-height: 893px
   bg-colour: white
-  title: "Interactive: title"
-  repo: report-example
-  domain: https://example.360visuals.org
-  path: /map/  
-  fragments: state, month
+  title: "Interactive: Unpaid work across Asia-Pacific"
+  repo: report-women-unpaid-work
+  domain: https://unpaidwork.360visuals.org
+  path: /timeuse-meta/
+  fragments: ""
   about: |
-    Here's a place to **tell people** and [link to things](https://example.com)!
+    The data from this visual comes from Meta's [Survey on Gender Equality at Home](https://dataforgood.facebook.com/dfg/tools/survey-on-gender-equality-at-home). The surveys were carried out in 2020 and 2021.<br><br>
+
+    The survey asked respondents how many hours they spent per day on unpaid domestic and care work. The published data then groups the responses into amounts of work (no work, less than 1 hour/day, 1-2 hours/day, etc.).<br><br>
+    
+    The visual shows the proportion of men and women in each country who responded in a given group. More blue means more respondents spent a small amount of time (or none); more red means more respondents spent a lot of time.
 ---
 
 ```{ojs}
@@ -60,7 +66,7 @@ countryLabels =
 ```
 
 ```{ojs}
-//| label: inputs
+//| label: controls
 viewof facetChoice = Inputs.radio(
   ["On gender", "On country"], {
     value: "On gender"
@@ -72,7 +78,6 @@ channels = ({
   "On country": { y: "gender",    fx: "fx",     fy: "fy" }
 })
 ```
-
 
 ```{ojs}
 //| label: plot-data
@@ -144,7 +149,7 @@ Plot.plot({
     swatchWidth: 25,
     style: {
       fontFamily: "Roboto Condensed",
-      fontSize: "100%",
+      fontSize: "90%",
     },
     columns: 5,
     type: "ordinal",

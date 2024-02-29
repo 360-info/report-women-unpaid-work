@@ -44,10 +44,10 @@ This content is subject to [360info's Terms of Use](https://newshub.360info.org/
 
 #### Get the data and code
 
-Visit the [GitHub repository](https://github.com/360-info/report-template/tree/main/data) to:
+Visit the [GitHub repository](https://github.com/360-info/{{< meta 360embed.repo >}}/tree/main/data) to:
 
-* [**Download the data**](https://github.com/360-info/report-template/tree/main/data)
-* [**Recreate or remix the chart**](https://github.com/360-info/report-template)
+* [**Download the data**](https://github.com/360-info/{{< meta 360embed.repo >}}/tree/main/data)
+* [**Recreate or remix the chart**](https://github.com/360-info/{{< meta 360embed.repo >}})
 ::::
 
 :::::

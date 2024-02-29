@@ -17,7 +17,6 @@ header#title-block-header {
   
   color: black;
   text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
-  font-weight: bold;
   
   /* uncomment following for an inset header */
   
@@ -103,4 +102,12 @@ header#title-block-header p {
 
 #plot-data figure {
   margin: 0;
+}
+
+#controls {
+  background-color: #f7f7f7;
+  padding: 0.5em;
+  border-radius: 0.5em;
+  font-weight: bold;
+  margin-block-end: 0.5em;
 }
