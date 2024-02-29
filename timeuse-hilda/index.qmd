@@ -61,7 +61,7 @@ allScale = allActivities.map((d, i) => ({
 
 // turn categories on and off
 viewof selectedActivities = Inputs.checkbox(allScale, {
-  value: allScale,
+  value: allScale.filter(d => !d.activity.toLowerCase().includes("paid")),
   format: x => html`<span style="display: inline-block; width: 0.8em; height: 0.8em; border-radius: 0.4em; background-color: ${x.color}; margin-inline-end: 0.3em;"></span><span>${x.activity}</span>`
 })
 
