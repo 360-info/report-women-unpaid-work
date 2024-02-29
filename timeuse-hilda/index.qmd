@@ -7,11 +7,11 @@ pagetitle: Australian women working without pay
 description: Women surveyed over the last 20 years have consistently spent more of their time on unpaid domestic and caring work than men.
 twitter-card:
   site: "@360info_global"
-  # image: "/folder/example.png"
+  image: "/timeuse-hilda/unpaidwork-hilda-banner.png"
 open-graph:
-  # image: "/folder/example.png"
-# resources:
-#   - example.png
+  image: "/timeuse-hilda/unpaidwork-hilda-banner.png"
+resources:
+  - unpaidwork-hilda-banner.png
 format:
   360-embed-html: default
 # metadata for modals and embed sharing functionality
