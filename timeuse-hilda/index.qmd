@@ -1,10 +1,10 @@
 ---
 # omit title and subtitle if you're doing a custom title block
-title: Unpaid domestic and care time
-subtitle: Test test test
+title: Australian women working without pay
+subtitle: Men and women surveyed over the last 20 worked similar hours on average — but men spent more of those hours on paid work, **doing less unpaid domestic and caring work.**
 # for social previews
-pagetitle: Unpaid domestic and care time
-# description: A description for social previews
+pagetitle: Australian women working without pay
+description: Men and women surveyed over the last 20 worked similar hours on average — but men spent more of those hours on paid work, doing less unpaid domestic and caring work.
 twitter-card:
   site: "@360info_global"
   # image: "/folder/example.png"
@@ -18,18 +18,24 @@ format:
 360embed:
   byline: James Goldie, 360info
   data-source: HILDA, UMelb/DSS
-  type: map
+  type: chart
   aspect-ratio: 20 / 19
-  min-height: 500px
-  max-height: 893px
+  min-height: 490px
+  max-height: 760px
   bg-colour: white
-  title: "Unpaid domestic and care time"
-  repo: report-example
-  domain: https://unpaidtime-hilda.360visuals.org
+  title: "Australian women working without pay"
+  repo: report-women-unpaid-work
+  domain: https://unpaidwork.360visuals.org
   path: /timeuse-hilda/  
   fragments: ""
   about: |
-    Here's a place to **tell people** and [link to things](https://example.com)!
+    This visual is based on 360info analysis of the [Household, Income and Labour Dynamics in Australia (HILDA)](https://melbourneinstitute.unimelb.edu.au/hilda) survey, which is produced annually by the University of Melbourne's [Melbourne Institute](https://melbourneinstitute.unimelb.edu.au).<br><br>
+
+    The survey asks Australians about many facets of their lives, but this visual focuses on questions concerning the time people spent in a given week on various paid and unpaid forms of work.<br><br>
+
+    The visual shows the average (mean) time reported by respondents in each survey wave (it is run annually, with data being mostly being collected in the second half of the year), sex and age group.<br><br>
+
+    The code analysing the survey results, as well as the data shown in this visual, are available on [GitHub](https://github.com/360-info/report-women-unpaid-work). The individual survey responses are not kept due to privacy restrictions. If you wish to reproduce the analysis, you must gain permission from the survey authors to download it – see the [repository data page](https://github.com/360-info/report-women-unpaid-work/tree/main/data) for directions.
 ---
 
 ```{ojs}
