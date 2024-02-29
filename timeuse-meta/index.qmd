@@ -76,6 +76,8 @@ channels = ({
 
 ```{ojs}
 //| label: plot-data
+Plot = import("https://esm.run/@observablehq/plot@0.6.13")
+
 Plot.plot({
   marks: [
     Plot.barX(timeUse, {
@@ -84,8 +86,7 @@ Plot.plot({
       fx: channels[facetChoice].fx,
       fy: channels[facetChoice].fy,
       fill: "response_category",
-      order: timeUseLevels,
-      tip: true
+      order: timeUseLevels
     }),
     // label country facets manually
     facetChoice == "On country" ?
@@ -110,7 +111,32 @@ Plot.plot({
       stroke: "white",
       strokeOpacity: 0.75,
       strokeDasharray: "2"
-    })
+    }),
+    Plot.tip(timeUse, Plot.pointer(Plot.stackX({
+      y: channels[facetChoice].y,
+      x: "value",
+      fx: channels[facetChoice].fx,
+      fy: channels[facetChoice].fy,
+      fill: "response_category",
+      order: timeUseLevels,
+      channels: {
+        "Response": {
+          label: "Response",
+          value: d => d.response_category + " hours per day"
+        },
+        "Share": {
+          label: "Share",
+          value: d => d.value + "% of respondents"
+        }
+      },
+      format: {
+        fx: false,
+        fy: false,
+        x: false,
+        y: false,
+        fill: false
+      },
+    })))
   ],
   color: {
     legend: true,
