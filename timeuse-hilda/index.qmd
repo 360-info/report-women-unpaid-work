@@ -37,6 +37,11 @@ format:
 allData = FileAttachment("/data/hilda-unpaid-time-stats.csv").csv({ typed: true})
 ```
 
+```{=html}
+<details>
+  <summary>Controls</summary>
+```
+
 ```{ojs}
 //| label: controls
 
@@ -68,6 +73,10 @@ viewof selectedYear = Scrubber(allYears, {
 })
 ```
 
+```{=html}
+</details>
+```
+
 ```{ojs}
 //| label: filter-data
 
@@ -96,6 +105,10 @@ Plot.plot({
       y: "value",
       fx: "sex",
       fill: "activity_long"
+    }),
+    Plot.text([selectedYear.toString(), selectedYear.toString()], {
+      fx: ["Female", "Male"],
+      frameAnchor: "top-right"
     })
   ],
   x: {
