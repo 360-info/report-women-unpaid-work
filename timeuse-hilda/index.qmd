@@ -98,6 +98,8 @@ filteredData = allData
 
 ```{ojs}
 //| label: stack-plot
+Plot = import("https://esm.run/@observablehq/plot@0.6.13")
+
 Plot.plot({
   marks: [
     Plot.barY(filteredData, {
@@ -109,7 +111,30 @@ Plot.plot({
     Plot.text([selectedYear.toString(), selectedYear.toString()], {
       fx: ["Female", "Male"],
       frameAnchor: "top-right"
-    })
+    }),
+    Plot.tip(filteredData, Plot.pointer(Plot.stackY({
+      x: "age_new",
+      y: "value",
+      fx: "sex",
+      fill: "activity_long",
+      channels: {
+        "fill": {
+          label: "",
+          value: "activity_long"
+        },
+        "Age": "age_new",
+        "value": {
+          label: "Hours per week",
+          value: d => d.value.toFixed(1)
+        }
+      },
+      format: {
+        fx: false,
+        x: false,
+        y: false
+      },
+      lineHeight: 1.25
+    })))
   ],
   x: {
     label: null,
