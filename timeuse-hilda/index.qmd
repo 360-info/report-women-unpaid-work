@@ -90,7 +90,7 @@ viewof selectedActivities = Inputs.checkbox(allScale, {
 
 filteredData = allData
   .filter(
-    d => d.statistic == "Average" &&
+    d =>
       selectedActivities.map(d => d.activity).includes(d.activity_long) &&
       d.year == selectedYear &&
       d.units == "Combined")
@@ -112,7 +112,7 @@ Plot.plot({
   marks: [
     Plot.barY(filteredData, {
       x: "age_new",
-      y: "value",
+      y: "Average",
       fx: "sex",
       fill: "activity_long"
     }),
@@ -122,7 +122,7 @@ Plot.plot({
     }),
     Plot.tip(filteredData, Plot.pointer(Plot.stackY({
       x: "age_new",
-      y: "value",
+      y: "Average",
       fx: "sex",
       fill: "activity_long",
       channels: {
@@ -132,9 +132,10 @@ Plot.plot({
         },
         "Age": "age_new",
         "value": {
-          label: "Hours per week",
-          value: d => d.value.toFixed(1)
-        }
+          label: "Avg. hours/week",
+          value: d => d.Average.toFixed(1)
+        },
+        "People in age group": "Number of people"
       },
       format: {
         fx: false,
@@ -148,7 +149,7 @@ Plot.plot({
     label: null,
   },
   y: {
-    label: "↑ Hours per week",
+    label: "↑ Average hours per week",
     grid: true
   },
   fx: {

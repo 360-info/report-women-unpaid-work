@@ -33,7 +33,9 @@ format:
 
     The survey asked respondents how many hours they spent per day on unpaid domestic and care work. The published data then groups the responses into amounts of work (no work, less than 1 hour/day, 1-2 hours/day, etc.).<br><br>
     
-    The visual shows the proportion of men and women in each country who responded in a given group. More blue means more respondents spent a small amount of time (or none); more red means more respondents spent a lot of time.
+    The visual shows the proportion of men and women in each country who responded in a given group. More blue means more respondents spent a small amount of time (or none); more red means more respondents spent a lot of time.<br><br>
+
+    Meta did not disclose the number of people surveyed in each country.
 ---
 
 ```{ojs}

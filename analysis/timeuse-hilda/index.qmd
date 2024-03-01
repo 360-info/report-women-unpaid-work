@@ -319,5 +319,6 @@ grouped_stats_recoded |>
   filter(
     units == "Combined",
     statistic %in% c("Number of people", "Average")) |>
+  pivot_wider(names_from = statistic, values_from = value) |>
   write_csv(here("data", "hilda-unpaid-time-stats.csv"))
 ```
