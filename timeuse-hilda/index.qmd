@@ -20,7 +20,7 @@ format:
   data-source: HILDA, UMelb/DSS
   type: chart
   aspect-ratio: 20 / 19
-  min-height: 445px
+  min-height: 465px
   max-height: 637px
   bg-colour: white
   title: "Australian women working without pay"
@@ -40,7 +40,7 @@ format:
 
 ```{ojs}
 //| label: load-data
-allData = FileAttachment("/data/hilda-unpaid-time-stats.csv").csv({ typed: true})
+allData = FileAttachment("/data/hilda-unpaid-time-stats.csv").csv({ typed: true })
 ```
 
 ```{ojs}
@@ -51,7 +51,7 @@ import { Scrubber } from "@mbostock/scrubber"
 allYears = Array.from(new Set(allData.map(d => d.year)))
 viewof selectedYear = Scrubber(allYears, {
   initial: allYears[0],
-  autoplay: false,
+  autoplay: true,
   loop: true,
   delay: 300,
   loopDelay: 3000
