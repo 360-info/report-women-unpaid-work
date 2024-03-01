@@ -93,11 +93,16 @@ Plot.plot({
       fx: channels[facetChoice].fx,
       fy: channels[facetChoice].fy,
       fill: "response_category",
-      order: timeUseLevels
+      order: timeUseLevels,
+      ariaLabel: d =>
+        "Rectangle: " +
+        d.value + "% of " + d.gender.toLowerCase() + " respondents in " + d.geography +
+        " reported " + d.response_category + " per day."
     }),
     // label country facets manually
     facetChoice == "On country" ?
       Plot.text(countryLabels, {
+        ariaHidden: true,
         fx: "fx",
         fy: "fy",
         frameAnchor: "top-left",
@@ -114,17 +119,21 @@ Plot.plot({
     }) : null,
     // draw grid on top
     Plot.gridX({
+      ariaHidden: true,
       interval: 20,
       stroke: "white",
       strokeOpacity: 0.75,
       strokeDasharray: "2"
     }),
     Plot.tip(timeUse, Plot.pointer(Plot.stackX({
+      ariaHidden: true,
       y: channels[facetChoice].y,
       x: "value",
       fx: channels[facetChoice].fx,
       fy: channels[facetChoice].fy,
       fill: "response_category",
+      fillOpacity: 0.9,
+      strokeOpacity: 0,
       order: timeUseLevels,
       channels: {
         "Response": {
@@ -180,7 +189,9 @@ Plot.plot({
     // fontWeight: "bold"
   },
   marginLeft: 110,
-  height: 600
+  height: 600,
+  ariaLabel: "Stacked bar chart", 
+  ariaDescription: "Stacked bar chart showing the percentage of men and women in different Asia-Pacific countries reporting various amounts of unpaid domestic or care work. The chart is currently grouped " + facetChoice.toLowerCase() + ".",
 });
 ```
 
