@@ -9,7 +9,6 @@ code-fold: true
 
 ```{r}
 #| label: setup
-
 library(tidyverse)
 library(themes360info)
 library(ggtext)
@@ -139,15 +138,15 @@ ggplot(gender_ratios) +
   labs(
     x = "Girls and women were more likely to do...",
     y = "Girls and women spent more time doing...",
-    title = "Unpaid work in the home across India",
+    title = toupper("Unpaid work in the home across India"),
     caption = paste(
       "**CHART:** James Goldie, 360info",
       "**DATA:** Time Use Survey 2019",
       "Ministry of Statistics and Programme Implementation, Indian Government",
       sep = "<br>"),
     subtitle = paste(
-      "Girls and women aged 6+ surveyed in India (n = 447,250) reported being **more likely**",
-      "than body and men to report doing unpaid domestic or care work in the house.",
+      "Girls and women aged 6+ surveyed in India (n = 447,250) were **more likely**",
+      "than boys and men to report doing unpaid domestic or care work in the house.",
       " Those who did also reported **spending more time** doing it.",
       sep = "<br>")) ->
 ratio_plot
