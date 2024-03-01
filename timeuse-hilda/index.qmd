@@ -1,10 +1,10 @@
 ---
 # omit title and subtitle if you're doing a custom title block
 title: Australian women working without pay
-subtitle: Women surveyed over the last 20 years have consistently **spent more of their time on unpaid domestic and caring work** than men.
+subtitle: Women surveyed over the last 20 years have consistently **done more unpaid domestic and caring work** than men.
 # for social previews
 pagetitle: Australian women working without pay
-description: Women surveyed over the last 20 years have consistently spent more of their time on unpaid domestic and caring work than men.
+description: Women surveyed over the last 20 years have consistently done more unpaid domestic and caring work than men.
 twitter-card:
   site: "@360info_global"
   image: "/timeuse-hilda/unpaidwork-hilda-banner.png"
