@@ -31,7 +31,10 @@ on Gender Equality at Home (Meta)</a>
 </li>  
 <li>  
 <a href="https://melbourneinstitute.unimelb.edu.au/hilda">Household,
-Income and Labour Dynamics in Australia survey (UMelb/DSS)</a>  
+Income and Labour Dynamics in Australia survey (UMelb/DSS)</a>
+  <ul>
+    <li><strong>Note:</strong> HILDA survey responses are not kept with this repository in order to protect respondent privacy. In order to re-run the HILDA analysis, you must apply for and download the survey responses separately. (The full project render can be done skipping this analysis.)</li>
+  </ul>
 </li>  
 <li>  
 <a href="https://www.pib.gov.in/PressReleasePage.aspx?PRID=1660028">Press
